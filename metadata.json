@@ -1,0 +1,8 @@
+{
+  "name": "Field Engineer Tracker",
+  "description": "Based Allowance Replenishment System for Field Engineers with Supabase Auth and Excel Export capabilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

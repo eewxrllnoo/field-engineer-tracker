@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Engineer Tracker - Based Allowance Replenishment</title>
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="src/styles/style.css">
+</head>
+<body>
+    <div id="auth-container">
+        <div class="auth-card">
+            <div class="text-center" style="margin-bottom: 1.5rem">
+                <h2 style="margin-bottom: 0.5rem; color: #3b82f6" id="app-title">Field Engineer Tracker</h2>
+                <p style="font-size: 0.8125rem; color: #64748b">Based Allowance Replenishment</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login" id="tab-login">Login</div>
+                <div class="auth-tab" data-tab="register" id="tab-register">Register</div>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" class="form-control" name="email" id="login-email" required placeholder="name@company.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" class="form-control" name="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%" id="btn-login-submit">Sign In</button>
+            </form>
+
+            <form id="register-form" class="hidden">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" class="form-control" name="name" id="register-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" class="form-control" name="email" id="register-email" required placeholder="name@company.com">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password (min 6 chars)</label>
+                    <input type="password" class="form-control" name="password" id="register-password" required minlength="6" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">Confirm Password</label>
+                    <input type="password" class="form-control" name="confirm" id="register-confirm" required minlength="6" placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%" id="btn-register-submit">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden">
+        <header>
+            <div>
+                <h1 style="font-size: 1.25rem; color: var(--text-main)">Based Allowance Replenishment (Company: ALS)</h1>
+                <p style="font-size: 0.75rem; color: var(--text-muted)">rev. 1.0 10.07.2024</p>
+            </div>
+            <div class="user-profile">
+                <i class="fas fa-user-circle fa-lg text-primary" style="color: var(--primary)"></i>
+                <span id="display-user-name">User Name</span>
+                <button class="btn btn-outline btn-sm" id="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <div id="edit-indicator-bar" class="edit-indicator hidden">
+            <i class="fas fa-info-circle"></i> 
+            <span>Editing Report #<span id="editing-report-id"></span> - Make your changes and click Update Report</span>
+        </div>
+
+        <main id="expense-form">
+            <div class="card">
+                <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Information Section</h2>
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label>Field Engineers Name</label>
+                        <input type="text" class="form-control" id="field-engineer" placeholder="Full Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Date Coverage Start</label>
+                        <input type="date" class="form-control" id="coverage-start">
+                    </div>
+                    <div class="form-group">
+                        <label style="text-align: center; margin-top: 1.8rem">to</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Coverage End</label>
+                        <input type="date" class="form-control" id="coverage-end">
+                    </div>
+                    <div class="form-group">
+                        <label>Cluster</label>
+                        <input type="text" class="form-control" id="cluster" placeholder="Region/Group">
+                    </div>
+                    <div class="form-group">
+                        <label>Date Filed</label>
+                        <input type="date" class="form-control" id="date-filed">
+                    </div>
+                    <div class="form-group">
+                        <label>Team Lead</label>
+                        <input type="text" class="form-control" id="team-lead" placeholder="Lead Name">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between" style="margin-bottom: 1rem">
+                    <h2 class="section-title" style="margin-bottom: 0"><i class="fas fa-file-invoice-dollar"></i> Expense Entries</h2>
+                    <div style="font-weight: 700; color: var(--primary); font-size: 1.25rem">
+                        Grand Total: ₱<span id="grand-total">0.00</span>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="expense-table">
+                        <thead>
+                            <tr>
+                                <th>Activity Date</th>
+                                <th>FP Ticket</th>
+                                <th>Project Name</th>
+                                <th>PO#</th>
+                                <th>Launch Point</th>
+                                <th>Client Address</th>
+                                <th>Dist (KM)</th>
+                                <th>Transpo</th>
+                                <th>Meal</th>
+                                <th>Lodging</th>
+                                <th>Materials</th>
+                                <th>Print</th>
+                                <th>Freight</th>
+                                <th>Rental</th>
+                                <th>Others</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div class="actions-grid">
+                    <button class="btn btn-outline" id="btn-add-row"><i class="fas fa-plus"></i> Add Expense Entry</button>
+                    <button class="btn btn-primary" id="btn-save"><i class="fas fa-save"></i> Save</button>
+                    <button class="btn btn-success" id="btn-update-report" style="display:none"><i class="fas fa-sync-alt"></i> Update Report</button>
+                    <button class="btn btn-danger" id="btn-cancel-edit" style="display:none"><i class="fas fa-times"></i> Cancel Edit</button>
+                    <button class="btn btn-success" id="btn-export"><i class="fas fa-file-excel"></i> Export to Excel</button>
+                    <button class="btn btn-outline" id="btn-view-all"><i class="fas fa-list"></i> View All</button>
+                    <button class="btn btn-outline" id="btn-save-local"><i class="fas fa-hdd"></i> Save Locally</button>
+                    <button class="btn btn-outline" id="btn-load-local"><i class="fas fa-download"></i> Load Local</button>
+                    <button class="btn btn-danger" id="btn-reset"><i class="fas fa-trash-alt"></i> Reset Form</button>
+                </div>
+            </div>
+
+            <div class="card recent-reports">
+                <div class="flex justify-between items-center mb-4" style="margin-bottom: 1rem">
+                    <h2 class="section-title" style="margin-bottom:0; color: #166534">
+                        <i class="fas fa-history"></i> Recent Saved Reports
+                    </h2>
+                    <button class="btn btn-sm btn-outline" id="btn-refresh-recent">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div class="recent-list" id="recent-reports-list">
+                    <p class="text-center p-4 text-muted" id="no-recent-msg" style="width: 100%">No recent reports found.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+    <div class="modal" id="reports-modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4" style="margin-bottom: 1rem">
+                <h2 style="font-size: 1.5rem">All Saved Reports</h2>
+                <button class="btn btn-outline" id="btn-close-modal">Close</button>
+            </div>
+            <div class="table-responsive">
+                <table style="min-width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Engineer Name</th>
+                            <th>Date Range</th>
+                            <th>Cluster</th>
+                            <th>Team Lead</th>
+                            <th>Total Amount</th>
+                            <th>Date Filed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-reports-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
