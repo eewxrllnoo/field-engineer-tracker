@@ -36,22 +36,33 @@ export class ReportView {
     }
 
     showAuth() {
-        this.getElement(this.selectors.authContainer).classList.remove('hidden');
-        this.getElement(this.selectors.appContainer).classList.add('hidden');
+        const auth = this.getElement(this.selectors.authContainer);
+        const app = this.getElement(this.selectors.appContainer);
+        if (auth) auth.classList.remove('hidden');
+        if (app) app.classList.add('hidden');
     }
 
     showApp(user) {
-        this.getElement(this.selectors.authContainer).classList.add('hidden');
-        this.getElement(this.selectors.appContainer).classList.remove('hidden');
-        this.getElement(this.selectors.userName).innerText = user.user_metadata.full_name || user.email;
-        this.getElement(this.selectors.inputs.filed).valueAsDate = new Date();
+        const auth = this.getElement(this.selectors.authContainer);
+        const app = this.getElement(this.selectors.appContainer);
+        if (auth) auth.classList.add('hidden');
+        if (app) app.classList.remove('hidden');
+        
+        const userName = this.getElement(this.selectors.userName);
+        if (userName) userName.innerText = user.user_metadata.full_name || user.email;
+        
+        const filed = this.getElement(this.selectors.inputs.filed);
+        if (filed) filed.valueAsDate = new Date();
     }
 
     toggleAuthTab(tabType) {
         const tabs = document.querySelectorAll(this.selectors.authTabs);
         tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabType));
-        this.getElement(this.selectors.loginForm).classList.toggle('hidden', tabType !== 'login');
-        this.getElement(this.selectors.registerForm).classList.toggle('hidden', tabType !== 'register');
+        
+        const login = this.getElement(this.selectors.loginForm);
+        const register = this.getElement(this.selectors.registerForm);
+        if (login) login.classList.toggle('hidden', tabType !== 'login');
+        if (register) register.classList.toggle('hidden', tabType !== 'register');
     }
 
     addExpenseRow(data = null, onCalc) {
@@ -99,19 +110,23 @@ export class ReportView {
 
     updateGrandTotal() {
         let grand = 0;
-        document.querySelectorAll('.row-total').forEach(span => {
+        document.querySelectorAll('#expense-tbody .row-total').forEach(span => {
             grand += parseFloat(span.innerText.replace(/,/g, '')) || 0;
         });
-        this.getElement(this.selectors.grandTotal).innerText = grand.toLocaleString('en-US', {minimumFractionDigits: 2});
+        const totalEl = this.getElement(this.selectors.grandTotal);
+        if (totalEl) totalEl.innerText = grand.toLocaleString('en-US', {minimumFractionDigits: 2});
         this.updateSummary();
         return grand;
     }
 
     updateSummary() {
-        const formData = this.getFormData();
-        const summaryData = {};
         const tbody = this.getElement(this.selectors.summaryTbody);
         const section = this.getElement(this.selectors.summarySection);
+        
+        if (!tbody || !section) return;
+
+        const formData = this.getFormData();
+        const summaryData = {};
         
         tbody.innerHTML = '';
         
@@ -161,7 +176,7 @@ export class ReportView {
                 <td>${v.fr.toFixed(2)}</td>
                 <td>${v.ren.toFixed(2)}</td>
                 <td>${v.o.toFixed(2)}</td>
-                <td class="row-total">${v.t.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="summary-row-total">${v.t.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -209,6 +224,7 @@ export class ReportView {
 
     renderRecentReports(reports, handlers) {
         const list = this.getElement(this.selectors.recentReports);
+        if (!list) return;
         list.innerHTML = '';
         if (reports.length === 0) {
             list.innerHTML = '<p class="text-center p-4 text-muted" style="width: 100%">No recent reports found.</p>';
@@ -245,6 +261,7 @@ export class ReportView {
 
     renderAllReports(reports, onLoad) {
         const body = this.getElement(this.selectors.modalBody);
+        if (!body) return;
         body.innerHTML = '';
         reports.forEach(r => {
             const tr = document.createElement('tr');
@@ -264,11 +281,19 @@ export class ReportView {
     }
 
     setEditMode(active, id = null) {
-        this.getElement(this.selectors.editIndicator).classList.toggle('hidden', !active);
-        if (id) document.getElementById('editing-report-id').innerText = id;
-        this.getElement(this.selectors.btnSave).classList.toggle('hidden', active);
-        this.getElement(this.selectors.btnUpdate).style.display = active ? 'inline-flex' : 'none';
-        this.getElement(this.selectors.btnCancelEdit).style.display = active ? 'inline-flex' : 'none';
+        const indicator = this.getElement(this.selectors.editIndicator);
+        if (indicator) indicator.classList.toggle('hidden', !active);
+        
+        const reportId = document.getElementById('editing-report-id');
+        if (id && reportId) reportId.innerText = id;
+        
+        const saveBtn = this.getElement(this.selectors.btnSave);
+        const updateBtn = this.getElement(this.selectors.btnUpdate);
+        const cancelBtn = this.getElement(this.selectors.btnCancelEdit);
+        
+        if (saveBtn) saveBtn.classList.toggle('hidden', active);
+        if (updateBtn) updateBtn.style.display = active ? 'inline-flex' : 'none';
+        if (cancelBtn) cancelBtn.style.display = active ? 'inline-flex' : 'none';
     }
 
     showToast(message, type = 'success') {
