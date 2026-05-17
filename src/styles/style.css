@@ -27,6 +27,17 @@ body {
 .flex { display: flex; }
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
+.flex-mobile-column {
+    display: flex;
+}
+
+@media (max-width: 600px) {
+    .flex-mobile-column {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
 .gap-2 { gap: 0.5rem; }
 .p-4 { padding: 1rem; }
 .mt-4 { margin-top: 1rem; }
@@ -126,15 +137,38 @@ body {
     padding: 1.5rem;
 }
 
+@media (max-width: 768px) {
+    #app-container {
+        padding: 0.75rem;
+    }
+}
+
 header {
     background: white;
-    padding: 1rem 2rem;
+    padding: 1.25rem 2rem;
     border-radius: 1rem;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .user-profile {
+        justify-content: center;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+    }
 }
 
 .user-profile {
@@ -150,6 +184,12 @@ header {
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 1rem;
+    }
 }
 
 .section-title {
@@ -168,6 +208,16 @@ header {
     gap: 1rem;
 }
 
+@media (max-width: 600px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
 .table-responsive {
     overflow-x: auto;
     margin-top: 1rem;
@@ -178,7 +228,7 @@ header {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1800px;
+    min-width: 1400px;
 }
 
 th, td {
@@ -197,10 +247,14 @@ th {
 
 .table-input {
     width: 100%;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
     background: transparent;
     font-size: 0.8125rem;
+    padding: 4px;
 }
+
+.table-input:hover { border-color: var(--border); }
 
 .table-input:focus { outline: none; background: #fffbeb; }
 
@@ -216,8 +270,14 @@ th {
 
 .recent-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .recent-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .report-mini-card {
@@ -282,10 +342,16 @@ th {
     background: white;
     padding: 2rem;
     border-radius: 1rem;
-    width: 90%;
+    width: 95%;
     max-width: 1000px;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 1rem;
+    }
 }
 
 .edit-indicator {
