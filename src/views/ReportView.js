@@ -11,6 +11,8 @@ export class ReportView {
             grandTotal: '#grand-total',
             recentReports: '#recent-reports-list',
             editIndicator: '#edit-indicator-bar',
+            summarySection: '#summary-section',
+            summaryTbody: '#summary-tbody',
             btnSave: '#btn-save',
             btnUpdate: '#btn-update-report',
             btnCancelEdit: '#btn-cancel-edit',
@@ -84,6 +86,11 @@ export class ReportView {
         };
 
         tr.querySelectorAll('.table-input.num').forEach(input => input.addEventListener('input', calcRow));
+        tr.querySelectorAll('.table-input').forEach(input => {
+            if (!input.classList.contains('num')) {
+                input.addEventListener('input', () => this.updateSummary());
+            }
+        });
         tr.querySelector('.row-remove-btn').addEventListener('click', () => { tr.remove(); onCalc(); });
 
         tbody.appendChild(tr);
@@ -96,7 +103,68 @@ export class ReportView {
             grand += parseFloat(span.innerText.replace(/,/g, '')) || 0;
         });
         this.getElement(this.selectors.grandTotal).innerText = grand.toLocaleString('en-US', {minimumFractionDigits: 2});
+        this.updateSummary();
         return grand;
+    }
+
+    updateSummary() {
+        const formData = this.getFormData();
+        const summaryData = {};
+        const tbody = this.getElement(this.selectors.summaryTbody);
+        const section = this.getElement(this.selectors.summarySection);
+        
+        tbody.innerHTML = '';
+        
+        if (formData.expenses.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+
+        formData.expenses.forEach(ex => {
+            if (!ex.project) return;
+            const k = `${ex.project}|${ex.po}`;
+            if (!summaryData[k]) {
+                summaryData[k] = { 
+                    p: ex.project, po: ex.po, 
+                    tr: 0, m: 0, l: 0, mat: 0, pr: 0, fr: 0, ren: 0, o: 0, t: 0 
+                };
+            }
+            summaryData[k].tr += ex.transpo;
+            summaryData[k].m += ex.meal;
+            summaryData[k].l += ex.lodging;
+            summaryData[k].mat += ex.materials;
+            summaryData[k].pr += ex.print;
+            summaryData[k].fr += ex.freight;
+            summaryData[k].ren += ex.rental;
+            summaryData[k].o += ex.others;
+            summaryData[k].t += ex.total;
+        });
+
+        const rows = Object.values(summaryData);
+        if (rows.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        rows.forEach(v => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${v.p}</td>
+                <td>${v.po}</td>
+                <td>${v.tr.toFixed(2)}</td>
+                <td>${v.m.toFixed(2)}</td>
+                <td>${v.l.toFixed(2)}</td>
+                <td>${v.mat.toFixed(2)}</td>
+                <td>${v.pr.toFixed(2)}</td>
+                <td>${v.fr.toFixed(2)}</td>
+                <td>${v.ren.toFixed(2)}</td>
+                <td>${v.o.toFixed(2)}</td>
+                <td class="row-total">${v.t.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
 
     getFormData() {
