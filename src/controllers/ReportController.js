@@ -19,7 +19,7 @@ export class ReportController {
                 this.view.showAuth();
                 this.isEditMode = false;
                 this.currentEditId = null;
-            } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+            } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
                 if (session?.user) {
                     this.model.user = session.user;
                     // Only handle login if we are currently showing auth
@@ -30,6 +30,29 @@ export class ReportController {
                 }
             }
         });
+
+        try {
+            const { data: { session }, error } = await this.model.supabase.auth.getSession();
+            if (error) {
+                if (error.message.includes('Refresh Token Not Found') || error.status === 400) {
+                    console.warn('Session expired, clearing...');
+                    await this.model.supabase.auth.signOut();
+                    this.view.showAuth();
+                    return;
+                }
+                throw error;
+            }
+            
+            if (session?.user) {
+                this.model.user = session.user;
+                this.handleLogin(session.user);
+            } else {
+                this.view.showAuth();
+            }
+        } catch (err) {
+            console.error('Session Init Error:', err);
+            this.view.showAuth();
+        }
     }
 
     registerEvents() {
