@@ -89,19 +89,21 @@ body {
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-main);
+    margin-bottom: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
 }
 
 .form-control {
     width: 100%;
-    padding: 0.625rem;
+    padding: 0.75rem;
     border: 1px solid var(--border);
     border-radius: 0.5rem;
-    font-size: 0.875rem;
-    transition: border-color 0.2s;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
 }
 
 .form-control:focus {
@@ -228,21 +230,30 @@ header {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1400px;
+    min-width: 1800px;
 }
+
+/* Specific column widths for better legibility */
+table th:nth-child(3), table td:nth-child(3) { min-width: 250px; } /* Project Name */
+table th:nth-child(5), table td:nth-child(5) { min-width: 350px; } /* Launch Point */
+table th:nth-child(6), table td:nth-child(6) { min-width: 600px; } /* Client Address */
+table th:nth-child(1), table td:nth-child(1) { min-width: 130px; } /* Date */
+table th:nth-child(2), table td:nth-child(2) { min-width: 130px; } /* Ticket */
+table th:nth-child(4), table td:nth-child(4) { min-width: 160px; } /* PO# */
 
 th, td {
     padding: 0.75rem;
     border: 1px solid var(--border);
     text-align: left;
     font-size: 0.8125rem;
+    vertical-align: top;
 }
 
 th {
     background: var(--bg-light);
     font-weight: 600;
     color: var(--text-muted);
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .table-input {
@@ -251,8 +262,18 @@ th {
     border-radius: 4px;
     background: transparent;
     font-size: 0.8125rem;
-    padding: 4px;
+    padding: 6px 8px;
+    line-height: 1.4;
+    font-family: inherit;
+    display: block;
+    vertical-align: top;
 }
+
+textarea.table-input {
+    min-height: 1.5rem;
+}
+
+#summary-section table th:nth-child(1), #summary-section table td:nth-child(1) { min-width: 300px; }
 
 .table-input:hover { border-color: var(--border); }
 
@@ -297,6 +318,7 @@ th {
 @media (min-width: 1025px) { .actions-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); } }
 @media (max-width: 1024px) and (min-width: 769px) { .actions-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 768px) { .actions-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .actions-grid { grid-template-columns: 1fr; } }
 
 #toast-container {
     position: fixed;
