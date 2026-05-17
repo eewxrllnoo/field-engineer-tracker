@@ -237,16 +237,18 @@ table {
 table th:nth-child(3), table td:nth-child(3) { min-width: 250px; } /* Project Name */
 table th:nth-child(5), table td:nth-child(5) { min-width: 350px; } /* Launch Point */
 table th:nth-child(6), table td:nth-child(6) { min-width: 600px; } /* Client Address */
-table th:nth-child(1), table td:nth-child(1) { min-width: 130px; } /* Date */
+table th:nth-child(1), table td:nth-child(1) { min-width: 140px; } /* Date */
 table th:nth-child(2), table td:nth-child(2) { min-width: 130px; } /* Ticket */
 table th:nth-child(4), table td:nth-child(4) { min-width: 160px; } /* PO# */
+table th:nth-child(7), table td:nth-child(7) { min-width: 100px; } /* Dist (KM) */
+table th:nth-child(n+8), table td:nth-child(n+8) { min-width: 100px; } /* Numeric Columns */
 
 th, td {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     text-align: left;
     font-size: 0.8125rem;
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 th {
@@ -262,11 +264,24 @@ th {
     border-radius: 4px;
     background: transparent;
     font-size: 0.8125rem;
-    padding: 6px 8px;
+    padding: 4px 6px;
     line-height: 1.4;
     font-family: inherit;
     display: block;
-    vertical-align: top;
+}
+
+.table-input.num {
+    text-align: right;
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.table-input.num::-webkit-outer-spin-button,
+.table-input.num::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
 }
 
 textarea.table-input {
