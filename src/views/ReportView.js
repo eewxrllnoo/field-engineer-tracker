@@ -73,8 +73,8 @@ export class ReportView {
             <td><input type="text" class="table-input" value="${data?.ticket || ''}"></td>
             <td><input type="text" class="table-input" value="${data?.project || ''}"></td>
             <td><input type="text" class="table-input" value="${data?.po || ''}"></td>
-            <td><input type="text" class="table-input" value="${data?.launch || ''}"></td>
-            <td><input type="text" class="table-input" value="${data?.address || ''}"></td>
+            <td><textarea class="table-input" rows="1" style="resize:none; overflow:hidden">${data?.launch || ''}</textarea></td>
+            <td><textarea class="table-input" rows="1" style="resize:none; overflow:hidden">${data?.address || ''}</textarea></td>
             <td><input type="number" step="0.1" class="table-input num" value="${data?.dist || 0}"></td>
             <td><input type="number" step="0.01" class="table-input num" value="${data?.transpo || 0}"></td>
             <td><input type="number" step="0.01" class="table-input num" value="${data?.meal || 0}"></td>
@@ -88,6 +88,23 @@ export class ReportView {
             <td><button class="btn btn-danger btn-sm row-remove-btn"><i class="fas fa-trash"></i></button></td>
         `;
 
+        const autoResize = (el) => {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        };
+
+        const calculateFare = (dist) => {
+            if (dist <= 0) return 0;
+            const floorDist = Math.floor(dist);
+            if (floorDist <= 5) return 80;
+            if (floorDist <= 10) return 100;
+            if (floorDist <= 18) return 150;
+            if (floorDist <= 27) return 200;
+            if (floorDist <= 40) return 225;
+            if (floorDist <= 64) return 300;
+            return 300; // Default to max defined if exceeds table as per 'closest approximate' note
+        };
+
         const calcRow = () => {
             const nums = tr.querySelectorAll('.table-input.num');
             let sum = 0;
@@ -96,8 +113,22 @@ export class ReportView {
             onCalc();
         };
 
+        const distInput = tr.querySelectorAll('.table-input.num')[0];
+        const transpoInput = tr.querySelectorAll('.table-input.num')[1];
+
+        distInput.addEventListener('input', () => {
+            const dist = parseFloat(distInput.value) || 0;
+            transpoInput.value = calculateFare(dist).toFixed(2);
+            calcRow();
+        });
+
         tr.querySelectorAll('.table-input.num').forEach(input => input.addEventListener('input', calcRow));
         tr.querySelectorAll('.table-input').forEach(input => {
+            if (input.tagName === 'TEXTAREA') {
+                input.addEventListener('input', () => autoResize(input));
+                // Initial resize
+                setTimeout(() => autoResize(input), 0);
+            }
             if (!input.classList.contains('num')) {
                 input.addEventListener('input', () => this.updateSummary());
             }
